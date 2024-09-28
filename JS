@@ -1,0 +1,67 @@
+const board = ['', '', '', '', '', '', '', '', ''];
+let currentPlayer = 'X';
+let gameWon = false;
+
+const cells = document.querySelectorAll('.cell');
+const statusText = document.getElementById('status');
+const replayButton = document.getElementById('replay');
+
+// Function to handle a player move
+function handleMove(event) {
+    const index = event.target.dataset.index;
+
+    if (board[index] === '' && !gameWon) {
+        board[index] = currentPlayer;
+        event.target.textContent = currentPlayer;
+        if (checkWin(currentPlayer)) {
+            statusText.textContent = `Player ${currentPlayer} wins!`;
+            gameWon = true;
+            replayButton.style.display = 'block'; // Show the replay button
+        } else if (isBoardFull()) {
+            statusText.textContent = `It's a tie!`;
+            replayButton.style.display = 'block'; // Show the replay button
+        } else {
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            statusText.textContent = `Player ${currentPlayer}'s turn`;
+        }
+    }
+}
+
+// Function to check if the board is full (tie)
+function isBoardFull() {
+    return board.every(cell => cell !== '');
+}
+
+// Function to check if a player has won
+function checkWin(player) {
+    const winPatterns = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+        [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+        [0, 4, 8], [2, 4, 6]             // Diagonals
+    ];
+
+    return winPatterns.some(pattern => {
+        return pattern.every(index => board[index] === player);
+    });
+}
+
+// Function to reset the game
+function resetGame() {
+    board.fill('');
+    cells.forEach(cell => {
+        cell.textContent = '';
+    });
+    currentPlayer = 'X';
+    gameWon = false;
+    statusText.textContent = `Player ${currentPlayer}'s turn`;
+    replayButton.style.display = 'none'; // Hide the replay button
+}
+
+// Add event listeners to the cells
+cells.forEach(cell => cell.addEventListener('click', handleMove));
+
+// Add event listener to the replay button
+replayButton.addEventListener('click', resetGame);
+
+// Set initial status message
+statusText.textContent = `Player ${currentPlayer}'s turn`;
